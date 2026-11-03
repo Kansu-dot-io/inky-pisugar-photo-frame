@@ -1,0 +1,13 @@
+[Unit]
+Description=Connect PiSugar through TCA9548A before PiSugar server
+DefaultDependencies=no
+After=local-fs.target
+Before=pisugar-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/muxctl pisugar-on
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

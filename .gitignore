@@ -1,0 +1,11 @@
+photos/
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+*.PNG
+*.webp
+*.bmp
+.photo-frame-index
+.DS_Store

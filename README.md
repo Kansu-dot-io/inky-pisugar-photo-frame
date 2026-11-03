@@ -42,10 +42,11 @@ Automatic RTC boot:
 4. The next photo is selected from `/home/photo1/photos`.
 5. PiSugar service is stopped and channel 0 is disconnected.
 6. Inky refreshes while PiSugar is electrically isolated.
-7. PiSugar is reconnected.
-8. The next RTC wake is programmed.
-9. PiSugar soft-poweroff is enabled.
-10. Linux shuts down and PiSugar removes 5V.
+7. The Pi stays awake for 5 minutes after the successful image change for SSH/maintenance access.
+8. PiSugar is reconnected.
+9. The next RTC wake is programmed.
+10. PiSugar soft-poweroff is enabled.
+11. Linux shuts down and PiSugar removes 5V.
 
 Manual power-on:
 
@@ -94,13 +95,13 @@ The next wake is programmed 10 minutes after the cycle starts.
 
 ## Daily mode
 
-Change to:
+Daily mode is the default configuration:
 
 ```text
 MODE=DAILY
 ```
 
-The frame wakes daily at 08:00 in the Pi's local timezone. Set the Pi to South Africa time with:
+The frame wakes daily at 08:00 in the Pi's local timezone. After each successful refresh it remains awake for 5 minutes before scheduling the next wake and shutting down. Set the Pi to South Africa time with:
 
 ```bash
 sudo timedatectl set-timezone Africa/Johannesburg

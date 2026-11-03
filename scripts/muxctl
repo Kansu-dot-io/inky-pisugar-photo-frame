@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+BUS=1
+MUX=0x70
+
+case "$1" in
+    pisugar-on)
+        /usr/sbin/i2cset -y "$BUS" "$MUX" 0x01
+        ;;
+    all-off)
+        /usr/sbin/i2cset -y "$BUS" "$MUX" 0x00
+        ;;
+    *)
+        echo "Usage: muxctl {pisugar-on|all-off}"
+        exit 1
+        ;;
+esac

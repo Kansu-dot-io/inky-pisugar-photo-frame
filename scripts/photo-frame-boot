@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import time
+from datetime import datetime
+
+WINDOW_SECONDS = 180
+
+def log(msg):
+    print(f"[photo-frame-boot] {msg}", flush=True)
+
+def pisugar(command):
+    result = subprocess.run(
+        ["nc", "-q", "0", "127.0.0.1", "8423"],
+        input=command + "\n",
+        text=True,
+        capture_output=True,
+        timeout=5,
+    )
+    return result.stdout.strip()
+
+for _ in range(30):
+    try:
+        model = pisugar("get model")
+        if "PiSugar 3" in model:
+            break
+    except Exception:
+        pass
+    time.sleep(1)
+else:
+    log("PiSugar unavailable. Assuming manual boot; staying awake.")
+    sys.exit(0)
+
+rtc_response = pisugar("get rtc_time")
+alarm_response = pisugar("get rtc_alarm_time")
+enabled_response = pisugar("get rtc_alarm_enabled")
+
+log(rtc_response)
+log(alarm_response)
+log(enabled_response)
+
+if "true" not in enabled_response.lower():
+    log("RTC alarm is not enabled. Manual/maintenance boot.")
+    sys.exit(0)
+
+try:
+    rtc_string = rtc_response.split(":", 1)[1].strip()
+    alarm_string = alarm_response.split(":", 1)[1].strip()
+    rtc = datetime.fromisoformat(rtc_string)
+    alarm = datetime.fromisoformat(alarm_string)
+except Exception as exc:
+    log(f"Could not parse RTC/alarm time: {exc}")
+    log("Staying awake for safety.")
+    sys.exit(0)
+
+def seconds_of_day(dt):
+    return dt.hour * 3600 + dt.minute * 60 + dt.second
+
+now_s = seconds_of_day(rtc)
+alarm_s = seconds_of_day(alarm)
+difference = abs(now_s - alarm_s)
+difference = min(difference, 86400 - difference)
+
+log(f"Current RTC time: {rtc.strftime('%H:%M:%S')}")
+log(f"Programmed alarm: {alarm.strftime('%H:%M:%S')}")
+log(f"Difference: {difference} seconds")
+
+if difference <= WINDOW_SECONDS:
+    log("RTC wake detected. Starting automatic photo cycle.")
+    result = subprocess.run(["/usr/local/bin/photo-frame.py"])
+    sys.exit(result.returncode)
+
+log("Manual power-on detected.")
+log("Photo cycle will NOT run. Pi will remain awake.")
+sys.exit(0)

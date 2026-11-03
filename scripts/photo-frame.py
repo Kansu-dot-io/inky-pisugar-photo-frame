@@ -203,6 +203,10 @@ def main():
 
     advance_image(images, index)
 
+    log("Photo changed successfully")
+    log("Keeping Pi awake for 5 minutes for maintenance/access")
+    time.sleep(300)
+
     connect_pisugar()
     schedule_next_wake()
 

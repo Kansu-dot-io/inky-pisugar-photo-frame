@@ -1,0 +1,14 @@
+[Unit]
+Description=Automatic Inky Photo Frame
+After=pisugar-server.service
+Requires=pisugar-mux.service
+Wants=pisugar-server.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/sbin/photo-frame-boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
